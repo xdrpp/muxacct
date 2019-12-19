@@ -13,6 +13,7 @@ func (e StrKeyError) Error() string { return string(e) }
 type StrKeyVersionByte byte
 
 var b32	= base32.StdEncoding.WithPadding(base32.NoPadding)
+// var b32	= base32.StdEncoding
 
 const (
 	STRKEY_ALG_ED25519 = 0
@@ -75,6 +76,9 @@ func ToStrKey(ver StrKeyVersionByte, bin []byte) string {
 // key and the type of key.  Returns the reserved StrKeyVersionByte
 // STRKEY_ERROR if it fails to decode the string.
 func FromStrKey(in []byte) ([]byte, StrKeyVersionByte) {
+	if rem := len(in) % 8; rem == 1 || rem == 3 || rem == 6 {
+		return nil, STRKEY_ERROR
+	}
 	bin := make([]byte, b32.DecodedLen(len(in)))
 	n, err := b32.Decode(bin, in)
 	if err != nil || n != len(bin) || n < 3 {
