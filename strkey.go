@@ -208,7 +208,13 @@ func (pk *MuxedAccount) UnmarshalText(bs []byte) error {
 		return nil
 	case STRKEY_MUXED|STRKEY_ALG_ED25519:
 		pk.Type = KEY_TYPE_MUXED_ED25519
-		return XdrFromBytes(pk.Med25519(), key)
+		if err := XdrFromBytes(pk.Med25519(), key); err != nil {
+			return err
+		}
+		if pk.String() != string(bs) {
+			return StrKeyError("Invalid MuxedAccount Strkey")
+		}
+		return nil
 	default:
 		return StrKeyError("Invalid public key type")
 	}
